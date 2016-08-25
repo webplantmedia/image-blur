@@ -57,9 +57,9 @@ final class Image_Watermark {
 				'extension'				=> '',
 				'url'					=> 0,
 				'width'					=> 80,
-				'plugin_off'			=> 0,
+				'plugin_off'			=> 1,
 				'frontend_active'		=> false,
-				'manual_watermarking'	=> 0,
+				'manual_watermarking'	=> 1,
 				'position'				=> 'bottom_right',
 				'watermark_size_type'	=> 2,
 				'offset_width'			=> 0,
@@ -328,12 +328,12 @@ final class Image_Watermark {
 
 			// admin
 			if ( $this->is_admin === true ) {
-				if ( $this->options['watermark_image']['plugin_off'] == 1 && $this->options['watermark_image']['url'] != 0 && in_array( $file['type'], $this->allowed_mime_types ) ) {
+				if ( $this->options['watermark_image']['plugin_off'] == 1 && in_array( $file['type'], $this->allowed_mime_types ) ) {
 					add_filter( 'wp_generate_attachment_metadata', array( $this, 'apply_watermark' ), 10, 2 );
 				}
 			// frontend
 			} else {
-				if ( $this->options['watermark_image']['frontend_active'] == 1 && $this->options['watermark_image']['url'] != 0 && in_array( $file['type'], $this->allowed_mime_types ) ) {
+				if ( $this->options['watermark_image']['frontend_active'] == 1 && in_array( $file['type'], $this->allowed_mime_types ) ) {
 					add_filter( 'wp_generate_attachment_metadata', array( $this, 'apply_watermark' ), 10, 2 );
 				}
 			}
@@ -352,7 +352,7 @@ final class Image_Watermark {
 			$wp_list_table = _get_list_table( 'WP_Media_List_Table' );
 
 			// only if manual watermarking is turned on and image watermark is set
-			if ( $wp_list_table->current_action() === 'applywatermark' && $this->options['watermark_image']['manual_watermarking'] == 1 && $this->options['watermark_image']['url'] != 0 ) {
+			if ( $wp_list_table->current_action() === 'applywatermark' && $this->options['watermark_image']['manual_watermarking'] == 1 ) {
 				// security check
 				check_admin_referer( 'bulk-media' );
 
@@ -514,8 +514,15 @@ final class Image_Watermark {
 
 		// is this really an iamge?
 		if ( getimagesize( $upload_dir['basedir'] . DIRECTORY_SEPARATOR . $data['file'] ) !== false ) {
+			$this->image_sizes = get_intermediate_image_sizes();
+			$this->image_sizes[] = 'full';
+			sort( $this->image_sizes, SORT_STRING );
+			foreach ( $this->image_sizes as $name ) {
+				$this->image_sizes_on[ $name ] = 1;
+			}
+
 			// loop through active image sizes
-			foreach ( $this->options['watermark_on'] as $image_size => $active_size ) {
+			foreach ( $this->image_sizes_on as $image_size => $active_size ) {
 				
 				if ( $active_size === 1 ) {
 					switch ( $image_size ) {
@@ -561,17 +568,21 @@ final class Image_Watermark {
 		$mime = wp_check_filetype( $image_path );
 
 		// get watermark path
-		$watermark_file = wp_get_attachment_metadata( $options['watermark_image']['url'], true );
-		$watermark_path = $upload_dir['basedir'] . DIRECTORY_SEPARATOR . $watermark_file['file'];
+		// $watermark_file = wp_get_attachment_metadata( $options['watermark_image']['url'], true );
+		// $watermark_path = $upload_dir['basedir'] . DIRECTORY_SEPARATOR . $watermark_file['file'];
 
 		// imagick extension
 		if ( $this->extension === 'imagick' ) {
 			// create image resource
 			$image = new Imagick( $image_path );
 
+			// blur image
+			$image->blurImage( 30, 10 );
+
+			/*
 			// create watermark resource
 			$watermark = new Imagick( $watermark_path );
-
+			
 			// set transparency
 			$image->setImageOpacity( round( 1 - (float)( $options['watermark_image']['transparent'] / 100 ), 2 ) );
 
@@ -603,6 +614,7 @@ final class Image_Watermark {
 
 			// combine two images together
 			$image->compositeImage( $watermark, Imagick::COMPOSITE_OVERLAY, $dest_x, $dest_y, Imagick::CHANNEL_ALL );
+			 */
 
 			// save watermarked image
 			$image->writeImage( $image_path );
@@ -613,9 +625,9 @@ final class Image_Watermark {
 			$image = null;
 
 			// clear watermark memory
-			$watermark->clear();
-			$watermark->destroy();
-			$watermark = null;
+			// $watermark->clear();
+			// $watermark->destroy();
+			// $watermark = null;
 		// gd extension
 		} else {
 			// get image resource
@@ -623,7 +635,7 @@ final class Image_Watermark {
 
 			if ( $image !== false ) {
 				// add watermark image to image
-				$image = $this->add_watermark_image( $image, $options, $upload_dir );
+				// $image = $this->add_watermark_image( $image, $options, $upload_dir );
 
 				if ( $image !== false ) {
 					// save watermarked image

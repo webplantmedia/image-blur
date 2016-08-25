@@ -233,11 +233,11 @@ class Image_Watermark_Settings {
 		}
 
 		if ( $input['watermark_image']['plugin_off'] != 0 || $input['watermark_image']['manual_watermarking'] != 0 ) {
-			if ( empty( $input['watermark_image']['url'] ) )
-				add_settings_error( 'iw_settings_errors', 'iw_image_not_set', __( 'Watermark will not be applied when watermark image is not set.', 'image-watermark' ), 'error' );
+			// if ( empty( $input['watermark_image']['url'] ) )
+				// add_settings_error( 'iw_settings_errors', 'iw_image_not_set', __( 'Watermark will not be applied when watermark image is not set.', 'image-watermark' ), 'error' );
 
-			if ( empty( $input['watermark_on'] ) )
-				add_settings_error( 'iw_settings_errors', 'iw_sizes_not_set', __( 'Watermark will not be applied when no image sizes are selected.', 'image-watermark' ), 'error' );
+			// if ( empty( $input['watermark_on'] ) )
+				// add_settings_error( 'iw_settings_errors', 'iw_sizes_not_set', __( 'Watermark will not be applied when no image sizes are selected.', 'image-watermark' ), 'error' );
 		}
 
 		return $input;
