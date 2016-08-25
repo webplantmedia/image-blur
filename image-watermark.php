@@ -1,13 +1,11 @@
 <?php
 /*
-Plugin Name: Image Watermark
-Description: Image Watermark allows you to automatically watermark images uploaded to the WordPress Media Library and bulk watermark previously uploaded images.
+Plugin Name: Image Blur
+Description: Image Blur allows you to automatically blur images uploaded to the WordPress Media Library and bulk blur previously uploaded images.
 Version: 7.5.6
-Author: dFactory
-Author URI: http://www.dfactory.eu/
-Plugin URI: http://www.dfactory.eu/plugins/image-watermark/
-License: MIT License
-License URI: http://opensource.org/licenses/MIT
+Author: Chris Baldelomar
+Author URI: http://webplantmedia.com/
+License: GPLv2 or later
 Text Domain: image-watermark
 Domain Path: /languages
 
